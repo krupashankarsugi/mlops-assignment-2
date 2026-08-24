@@ -53,13 +53,26 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # --- Deployment target: a k3d Kubernetes cluster inside the runner -----
+      # Installed directly rather than via AbsaOSS/k3d-action, whose pinned
+      # k3d v5.4.6 installer 404s. Version is pinned here for reproducibility.
+      - name: Install k3d
+        env:
+          K3D_VERSION: v5.8.3
+        run: |
+          curl -fsSL -o /usr/local/bin/k3d \
+            "https://github.com/k3d-io/k3d/releases/download/${K3D_VERSION}/k3d-linux-amd64"
+          chmod +x /usr/local/bin/k3d
+          k3d version
+
       - name: Create k3d cluster
-        uses: AbsaOSS/k3d-action@v2
-        with:
-          cluster-name: mlops-cd
-          args: >-
-            --agents 1
-            --port 8000:30080@agent:0
+        run: |
+          k3d cluster create mlops-cd \
+            --agents 1 \
+            --port "8000:30080@agent:0" \
+            --wait \
+            --timeout 180s
+          kubectl cluster-info
+          kubectl wait --for=condition=Ready nodes --all --timeout=120s
 
       - name: Pull the new image from the registry
         run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
@@ -84,13 +97,25 @@ jobs:
 
       - name: Collect deployment diagnostics
         if: always()
+        continue-on-error: true
         run: |
-          kubectl get pods,svc,deploy -o wide
+          kubectl get pods,svc,deploy -o wide || true
+          kubectl describe deploy/cats-vs-dogs-api || true
           kubectl logs -l app=cats-vs-dogs-api --tail=50 || true
 
       - name: Roll back on smoke-test failure
         if: failure()
+        continue-on-error: true
         run: |
+          if ! kubectl get deployment/cats-vs-dogs-api >/dev/null 2>&1; then
+            echo "No Deployment exists (the job failed before rollout); nothing to roll back."
+            exit 0
+          fi
           echo "Smoke tests failed -- rolling back to the previous revision"
           kubectl rollout undo deployment/cats-vs-dogs-api || true
           kubectl rollout status deployment/cats-vs-dogs-api --timeout=120s || true
+
+      - name: Tear down the cluster
+        if: always()
+        continue-on-error: true
+        run: k3d cluster delete mlops-cd || true
