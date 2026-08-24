@@ -1,7 +1,8 @@
 # Assignment 2 — Submission Notes
 
-**Course:** MLOps (S1-25_AIMLCZG523) · **Total marks:** 50
-**Use case:** Binary image classification (Cats vs Dogs) for a pet adoption platform
+**Course:** MLOps (S1-25_AIMLCZG523) · **Total marks:** 50  
+**Use case:** Binary image classification (Cats vs Dogs) for a pet adoption platform  
+**GitHub Repository:** https://github.com/krupashankarsugi/mlops-assignment-2
 
 ---
 
@@ -214,6 +215,8 @@ $ curl -F "file=@data/processed/test/dog/dog_10042.jpg" http://localhost:8000/pr
 | # | Deliverable | Location |
 |---|---|---|
 | 1 | Zip: source, DVC/CI-CD/Docker/K8s configs, model artifacts | `make package` → `MLOps_Assignment02_KrupaShankar.zip` |
+| — | Written report (`report.md` + `report.pdf`) | in the repo root |
+| — | Source repository | https://github.com/krupashankarsugi/mlops-assignment-2 |
 | 2 | Screen recording (< 5 min) of the full workflow | *to be recorded — see the demo script below* |
 
 ### Suggested demo script (< 5 minutes)

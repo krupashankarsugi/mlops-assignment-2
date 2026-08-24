@@ -1,6 +1,6 @@
 # Convenience targets for the Cats vs Dogs MLOps pipeline.
 .PHONY: help setup data train test lint serve docker-build docker-run compose-up compose-down \
-        smoke monitor k8s-deploy k8s-delete dvc-repro clean package
+        smoke monitor k8s-deploy k8s-delete dvc-repro clean package report
 
 PYTHON      ?= .venv/bin/python
 IMAGE       ?= cats-vs-dogs-api
@@ -69,6 +69,12 @@ k8s-delete:  ## Remove the Kubernetes resources
 	-kubectl delete -f k8s/service.yaml
 	-kubectl delete -f k8s/deployment.yaml
 	-kubectl delete -f k8s/configmap.yaml
+
+report:  ## Render report.md to report.pdf (needs pandoc + weasyprint)
+	pandoc report.md -o report.pdf \
+	  --pdf-engine=weasyprint --css=.report/report.css \
+	  --metadata title="MLOps Assignment 02 — Cats vs Dogs" \
+	  --toc --toc-depth=2 --standalone
 
 package:  ## Build the submission zip
 	$(PYTHON) scripts/package_submission.py

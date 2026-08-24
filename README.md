@@ -1,6 +1,7 @@
 # Cats vs Dogs — End-to-End MLOps Pipeline
 
-**MLOps (S1-25_AIMLCZG523) — Assignment 2**
+**MLOps (S1-25_AIMLCZG523) — Assignment 2**  
+**GitHub Repository:** https://github.com/krupashankarsugi/mlops-assignment-2
 
 Binary image classification (cat vs dog) for a pet adoption platform, built as a
 complete MLOps pipeline: data/model versioning, experiment tracking, a

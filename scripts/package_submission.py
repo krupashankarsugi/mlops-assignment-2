@@ -22,7 +22,8 @@ INCLUDE_DIRS = [
 
 # Individual files at the repo root.
 INCLUDE_FILES = [
-    "README.md", "SUBMISSION.md", "Makefile", "Dockerfile", ".dockerignore",
+    "README.md", "SUBMISSION.md", "report.md", "report.pdf",
+    "Makefile", "Dockerfile", ".dockerignore", ".report/report.css",
     "docker-compose.yml", "requirements.txt", "requirements-train.txt",
     "requirements-dev.txt", "params.yaml", "dvc.yaml", "dvc.lock",
     "pytest.ini", "ruff.toml", ".gitignore", ".dvc/config",
