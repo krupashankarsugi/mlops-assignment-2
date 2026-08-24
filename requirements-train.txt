@@ -1,0 +1,14 @@
+# Training / experiment-tracking / data-versioning dependencies.
+-r requirements.txt
+
+setuptools==69.5.1          # provides pkg_resources, required by mlflow 2.14
+mlflow==2.14.1
+dvc==3.51.2
+# dvc's own `pathspec>=0.10.3` is too loose: pathspec 1.x removed the
+# private API dvc imports, so pin the last compatible release.
+pathspec==0.12.1
+scikit-learn==1.5.0
+matplotlib==3.8.4
+seaborn==0.13.2
+pandas==2.2.2
+tqdm==4.66.4

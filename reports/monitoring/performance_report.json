@@ -1,0 +1,47 @@
+{
+  "generated_at": "2026-08-24T13:53:31Z",
+  "samples": 60,
+  "correct": 57,
+  "accuracy": 0.95,
+  "class_names": [
+    "cat",
+    "dog"
+  ],
+  "confusion_matrix": [
+    [
+      30,
+      0
+    ],
+    [
+      3,
+      27
+    ]
+  ],
+  "per_class": {
+    "cat": {
+      "support": 30,
+      "precision": 0.9091,
+      "recall": 1.0,
+      "f1": 0.9524
+    },
+    "dog": {
+      "support": 30,
+      "precision": 1.0,
+      "recall": 0.9,
+      "f1": 0.9474
+    }
+  },
+  "mean_confidence": 0.964,
+  "prediction_distribution": {
+    "cat": 33,
+    "dog": 27
+  },
+  "latency_ms": {
+    "mean": 39.75,
+    "p50": 32.91,
+    "p95": 62.85,
+    "p99": 327.68,
+    "max": 327.68
+  },
+  "failed_requests": 0
+}

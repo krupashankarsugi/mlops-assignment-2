@@ -1,0 +1,120 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: python -m src.data.download
+    deps:
+    - path: src/config.py
+      hash: md5
+      md5: 1d091989c6b598812a90264a53e8a0e7
+      size: 3147
+    - path: src/data/download.py
+      hash: md5
+      md5: 3450dc9efd74b1b47bceedaccfc466cd
+      size: 3980
+    params:
+      params.yaml:
+        data.raw_dir: data/raw
+    outs:
+    - path: data/raw/PetImages
+      hash: md5
+      md5: b2c461b1b0bcb7a0a2318d5be1f13758.dir
+      size: 866190740
+      nfiles: 25002
+  preprocess:
+    cmd: python -m src.data.preprocess --clean
+    deps:
+    - path: data/raw/PetImages
+      hash: md5
+      md5: b2c461b1b0bcb7a0a2318d5be1f13758.dir
+      size: 866190740
+      nfiles: 25002
+    - path: src/config.py
+      hash: md5
+      md5: 1d091989c6b598812a90264a53e8a0e7
+      size: 3147
+    - path: src/data/preprocess.py
+      hash: md5
+      md5: d270b359312cc06400c6c7fbedc1aa60
+      size: 5908
+    params:
+      params.yaml:
+        data.image_size: 224
+        data.max_images_per_class: 2000
+        data.seed: 42
+        data.test_split: 0.1
+        data.train_split: 0.8
+        data.val_split: 0.1
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 56e3e34af741e91fde6a91ac25261437.dir
+      size: 58249084
+      nfiles: 4001
+  train:
+    cmd: python -m src.models.train
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 56e3e34af741e91fde6a91ac25261437.dir
+      size: 58249084
+      nfiles: 4001
+    - path: src/config.py
+      hash: md5
+      md5: 1d091989c6b598812a90264a53e8a0e7
+      size: 3147
+    - path: src/data/dataset.py
+      hash: md5
+      md5: 90d7ac39ceff892dbb204ec9d6bd4da4
+      size: 3160
+    - path: src/models/cnn.py
+      hash: md5
+      md5: a9a047042f96540d638ee7bfc0352d36
+      size: 3554
+    - path: src/models/train.py
+      hash: md5
+      md5: b96a03fccf814176bb89ce9866281dc6
+      size: 13701
+    params:
+      params.yaml:
+        augment:
+          horizontal_flip: 0.5
+          rotation_degrees: 15
+          color_jitter: 0.2
+          random_resized_crop_scale:
+          - 0.8
+          - 1.0
+        mlflow:
+          tracking_uri: file:./mlruns
+          experiment_name: cats-vs-dogs
+          registered_model_name: cats-vs-dogs-cnn
+        train:
+          model_name: simple_cnn
+          epochs: 8
+          batch_size: 32
+          learning_rate: 0.001
+          weight_decay: 0.0001
+          dropout: 0.3
+          num_workers: 2
+          seed: 42
+          early_stopping_patience: 3
+    outs:
+    - path: models/model.pt
+      hash: md5
+      md5: fa66166ca26ec6f183ca0f4ac52e4abd
+      size: 44782658
+    - path: models/model_metadata.json
+      hash: md5
+      md5: e6f1680a9ffe3987ce8c5ace01a6a240
+      size: 478
+    - path: reports/figures/confusion_matrix.png
+      hash: md5
+      md5: 245b905ede3b51634da9ea6d7bd0a6b3
+      size: 25205
+    - path: reports/figures/training_curves.png
+      hash: md5
+      md5: 0470b2ca6a87a4fe2d7b8db4f7ce6187
+      size: 79824
+    - path: reports/metrics.json
+      hash: md5
+      md5: 02d70a5cfd7c361cfaa45b6d2ec96672
+      size: 352

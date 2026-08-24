@@ -1,0 +1,54 @@
+# DVC pipeline: download -> preprocess -> train.
+# `dvc repro` re-runs only the stages whose deps/params changed.
+stages:
+  download:
+    cmd: python -m src.data.download
+    deps:
+      - src/data/download.py
+      - src/config.py
+    params:
+      - data.raw_dir
+    outs:
+      - data/raw/PetImages:
+          persist: true
+          cache: false   # 800 MB source corpus: re-fetchable, not worth caching
+
+  preprocess:
+    cmd: python -m src.data.preprocess --clean
+    deps:
+      - data/raw/PetImages
+      - src/data/preprocess.py
+      - src/config.py
+    params:
+      - data.image_size
+      - data.train_split
+      - data.val_split
+      - data.test_split
+      - data.seed
+      - data.max_images_per_class
+    outs:
+      - data/processed
+
+  train:
+    cmd: python -m src.models.train
+    deps:
+      - data/processed
+      - src/models/train.py
+      - src/models/cnn.py
+      - src/data/dataset.py
+      - src/config.py
+    params:
+      - train
+      - augment
+      - mlflow
+    outs:
+      - models/model.pt
+      - models/model_metadata.json
+    metrics:
+      - reports/metrics.json:
+          cache: false
+    plots:
+      - reports/figures/confusion_matrix.png:
+          cache: false
+      - reports/figures/training_curves.png:
+          cache: false

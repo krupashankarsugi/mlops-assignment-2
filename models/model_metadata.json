@@ -1,0 +1,21 @@
+{
+  "model_name": "resnet18_transfer",
+  "framework": "pytorch-2.2.2",
+  "class_names": [
+    "cat",
+    "dog"
+  ],
+  "image_size": 224,
+  "parameters_total": 11177538,
+  "parameters_trainable": 1026,
+  "test_metrics": {
+    "f1": 0.975,
+    "precision": 0.975,
+    "roc_auc": 0.998475,
+    "recall": 0.975,
+    "accuracy": 0.975
+  },
+  "trained_at": "2026-08-24T13:47:36Z",
+  "promoted_from_run": "3f4a780dd6054fa1a093b016ffb3f15d",
+  "promoted_run_name": "resnet18-transfer"
+}

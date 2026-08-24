@@ -1,0 +1,13 @@
+line-length = 110
+target-version = "py310"
+exclude = [".venv", "assignment_1", "mlruns", "data", "notebooks"]
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = [
+    "E501",  # long lines are handled by the formatter, not the linter
+    "B008",  # FastAPI's Depends()/File() defaults are the documented idiom
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["B011"]

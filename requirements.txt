@@ -1,0 +1,14 @@
+# ---------------------------------------------------------------------------
+# Runtime dependencies for the inference service (used by the Docker image).
+# Every key ML library is pinned to an exact version for reproducibility.
+# ---------------------------------------------------------------------------
+torch==2.2.2
+torchvision==0.17.2
+numpy==1.26.4
+pillow==10.3.0
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+pydantic==2.7.4
+python-multipart==0.0.9
+pyyaml==6.0.1
+prometheus-client==0.20.0

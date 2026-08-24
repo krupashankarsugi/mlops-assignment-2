@@ -1,0 +1,24 @@
+# Keep the build context small: the dataset and experiment history never ship.
+assignment_1/
+data/
+mlruns/
+.venv/
+.git/
+.github/
+notebooks/
+reports/figures/
+screenshots/
+tests/
+docs/
+*.mov
+*.mp4
+*.zip
+*.pdf
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store
+.dvc/cache

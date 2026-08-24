@@ -1,0 +1,26 @@
+{
+  "model_name": "resnet18_transfer",
+  "test": {
+    "accuracy": 0.975,
+    "precision": 0.975,
+    "recall": 0.975,
+    "f1": 0.975,
+    "roc_auc": 0.998475
+  },
+  "best_val_loss": 0.10294518306851387,
+  "epochs_run": 5,
+  "confusion_matrix": [
+    [
+      195,
+      5
+    ],
+    [
+      5,
+      195
+    ]
+  ],
+  "class_names": [
+    "cat",
+    "dog"
+  ]
+}

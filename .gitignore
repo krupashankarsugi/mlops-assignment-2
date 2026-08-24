@@ -1,0 +1,45 @@
+# Data & models are versioned with DVC, not Git.
+/data/raw/
+/data/processed/
+*.zip
+*.mov
+*.mp4
+
+# Model artifacts (tracked via DVC + published as CI artifacts)
+models/*.pt
+models/*.pth
+models/*.onnx
+
+# Experiment tracking
+mlruns/
+mlartifacts/
+.dvc/cache/
+.dvc/tmp/
+.dvc/config.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Backup of Assignment 1's git history, kept locally after re-initialising.
+/.git.assignment1.bak/
+
+# Assignment 1 lives here for local reference only; it has its own repository
+# at github.com/krupashankarsugi/heart-disease-mlops.
+/assignment_1/
+
+# Submission bundle is a build artifact (make package rebuilds it).
+MLOps_Assignment02_*.zip
