@@ -68,8 +68,8 @@ stages:
       size: 3160
     - path: src/models/cnn.py
       hash: md5
-      md5: a9a047042f96540d638ee7bfc0352d36
-      size: 3554
+      md5: 1df038eead5b0ff5211491f2a0f38a84
+      size: 4119
     - path: src/models/train.py
       hash: md5
       md5: b96a03fccf814176bb89ce9866281dc6
