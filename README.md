@@ -255,6 +255,10 @@ needs the 800 MB dataset or a trained checkpoint.
 
 The smoke test exits non-zero on any failure, which fails the pipeline.
 
+This pipeline is verified green: CD provisions the cluster, rolls out 2/2
+replicas and passes `/health`, `/ready` and a real `/predict` call before the
+job is allowed to succeed.
+
 ### Manifests
 
 - [`k8s/deployment.yaml`](k8s/deployment.yaml) — 2 replicas, rolling update with `maxUnavailable: 0` (zero-downtime), startup/liveness/readiness probes, resource requests and limits, hardened `securityContext`
