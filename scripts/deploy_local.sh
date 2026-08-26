@@ -4,7 +4,10 @@
 set -euo pipefail
 
 IMAGE="${IMAGE:-cats-vs-dogs-api}"
-TAG="${TAG:-latest}"
+# A unique tag per build. `minikube image load` keeps whatever the node
+# already has for a given tag, so reusing ':latest' silently deploys the old
+# image; a fresh tag makes that impossible.
+TAG="${TAG:-dev-$(date +%Y%m%d-%H%M%S)}"
 NAMESPACE="${NAMESPACE:-default}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -19,15 +22,14 @@ echo "==> 2/6  Building ${IMAGE}:${TAG}"
 docker build -t "${IMAGE}:${TAG}" .
 
 echo "==> 3/6  Loading the image into minikube"
-# minikube silently keeps the existing image when the tag already exists on the
-# node, so a rebuilt ":latest" would never reach the pods. Drop it first.
-minikube image rm "${IMAGE}:${TAG}" >/dev/null 2>&1 || true
 minikube image load "${IMAGE}:${TAG}"
 
-LOCAL_ID="$(docker images -q "${IMAGE}:${TAG}")"
-NODE_ID="$(minikube ssh -- "docker images -q ${IMAGE}:${TAG}" 2>/dev/null | tr -d '\r')"
-if [ -n "$LOCAL_ID" ] && [ -n "$NODE_ID" ] && [ "${NODE_ID:0:12}" != "${LOCAL_ID:0:12}" ]; then
-  echo "ERROR: minikube still holds a stale ${IMAGE}:${TAG} (${NODE_ID:0:12} != ${LOCAL_ID:0:12})" >&2
+# Confirm the tag actually landed on the node. Image IDs are NOT compared here:
+# `minikube image load` round-trips the image through a tar, so the node's ID
+# legitimately differs from the host's and comparing them yields false alarms.
+# The unique tag above is what guarantees freshness.
+if ! minikube image ls 2>/dev/null | grep -q "${IMAGE}:${TAG}"; then
+  echo "ERROR: ${IMAGE}:${TAG} did not reach the minikube node" >&2
   exit 1
 fi
 

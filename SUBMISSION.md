@@ -126,7 +126,8 @@ All of the following were executed on this machine, not just written:
                                    succeeded, smoke test passed
 [x] CI green on GitHub runners     lint, 56 tests, image built + pushed to
                                    GHCR, container verified serving
-[ ] Rollout on local minikube      not reached on this machine -- see note 5
+[x] Rollout on local minikube      2/2 replicas Ready, smoke test PASSED
+                                   (serving the trained model: dog @ 0.9873)
 ```
 
 ### Sample prediction
@@ -186,33 +187,21 @@ $ curl -F "file=@data/processed/test/dog/dog_10042.jpg" http://localhost:8000/pr
    since a laptop minikube is not reachable from GitHub-hosted runners. The same
    manifests apply unchanged to local minikube via `make k8s-deploy`.
 
-5. **Kubernetes deployment is verified in CD, not on this laptop.** The CD
-   pipeline provisions a k3d cluster, pulls the image from GHCR, applies the
-   manifests and gates on the smoke test — and it passes:
+5. **Kubernetes deployment is verified on two clusters.** The CD pipeline
+   provisions a k3d cluster, pulls the image from GHCR, applies the manifests
+   and gates on the smoke test -- and it passes. The same sequence was also run
+   on **local minikube** via `scripts/deploy_local.sh`: 2/2 replicas Ready and
 
    ```
-   configmap/cats-vs-dogs-config created
-   deployment.apps/cats-vs-dogs-api created
-   service/cats-vs-dogs-api created
-   deployment "cats-vs-dogs-api" successfully rolled out
-   deployment.apps/cats-vs-dogs-api   2/2   2 available
-   [2/4] /health ok      [3/4] /ready ok      [4/4] /predict ok
+   [2/4] /health ok   [3/4] /ready ok
+   [4/4] /predict ok  (label=dog, confidence=0.9873, latency=3629.9ms)
    === SMOKE TEST PASSED ===
    ```
 
-   The equivalent run on local **minikube** was not reached: this machine runs
-   Docker through Colima, and the nested minikube control plane repeatedly came
-   up with `apiserver: Stopped` after the host disk filled during the build.
-   The security constraints the manifests impose were additionally verified
-   directly with `docker run --read-only --user 10001`.
-   `scripts/deploy_local.sh` runs the full minikube sequence on a host with
-   more headroom.
-
-   Note that the pod CD deploys carries the **placeholder** checkpoint from
-   `scripts/make_ci_model.py`, because no DVC remote is configured for this
-   repo — so the smoke test's `confidence=0.5264` reflects untrained weights.
-   It proves the deployment path end to end, not model quality; the trained
-   97.5% model is measured in M1 and by `scripts/monitor_performance.py`.
+   The local run serves the **trained** checkpoint, so that is a real
+   classification of a held-out test image. CD deploys the untrained
+   placeholder from `scripts/make_ci_model.py` (no DVC remote is configured),
+   so CD proves the deployment path while minikube proves the model.
 
 6. **Model in Git.** `models/*.pt` is DVC-tracked, not committed. CI restores it
    with `dvc pull` when a DVC remote is configured, and otherwise generates a

@@ -404,9 +404,28 @@ The `startupProbe` matters: PyTorch takes several seconds to import and deserial
 
 ### 10.2 Deployment Verification
 
-The rollout is verified green in the CD pipeline (Section 9.3): 2/2 replicas Ready, rollout succeeded, smoke test passed.
+The rollout is verified on **two** independent clusters.
 
-For local minikube, `scripts/deploy_local.sh` runs the equivalent sequence — build, load into the cluster, apply, wait for rollout, smoke test.
+**CD pipeline (k3d, GitHub-hosted runner)** — see Section 9.3: 2/2 replicas Ready, rollout succeeded, smoke test passed.
+
+**Local minikube** via `scripts/deploy_local.sh` (build → load → apply → wait → smoke test):
+
+```
+deployment.apps/cats-vs-dogs-api   2/2   2 up-to-date   2 available
+service/cats-vs-dogs-api           NodePort   10.107.207.87   80:30080/TCP
+configmap/cats-vs-dogs-config      4 keys
+pod/cats-vs-dogs-api-f44997966-rkrwn   1/1   Running
+pod/cats-vs-dogs-api-f44997966-vgswt   1/1   Running
+
+=== Smoke test ===
+[2/4] /health ok      [3/4] /ready ok
+[4/4] /predict ok  (label=dog, confidence=0.9873, latency=3629.9ms)
+=== SMOKE TEST PASSED ===
+```
+
+The local run is the stronger check of the two: it serves the **trained** checkpoint, so the prediction above is a genuine 98.7%-confidence classification of a held-out test image, whereas CD deploys the untrained CI placeholder and can only prove the deployment path.
+
+The first cold-start `/predict` takes ~3.6 s because PyTorch lazily initialises on the first forward pass; steady-state latency is ~33 ms (Section 11.3).
 
 ### 10.3 A Bug the Security Context Caught
 
@@ -557,7 +576,7 @@ curl -F "file=@data/processed/test/cat/cat_10017.jpg" \
 
 - Training used 4,000 of the available 24,998 images to keep the pipeline laptop-runnable; `data.max_images_per_class: 0` lifts this.
 - No DVC remote is configured, so CI falls back to a placeholder checkpoint when building images. The pod deployed by CD therefore carries untrained weights — CD verifies the deployment path, not model quality.
-- The Kubernetes rollout is verified in the CD pipeline on k3d; the equivalent local minikube run was not completed on the development machine (nested virtualisation and disk constraints).
+- Training used a 4,000-image subset, so the reported accuracy is not what the full 24,998-image corpus would yield.
 
 ---
 
