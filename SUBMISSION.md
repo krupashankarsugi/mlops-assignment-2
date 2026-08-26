@@ -101,7 +101,8 @@ in CI rather than in CD.
 All of the following were executed on this machine, not just written:
 
 ```
-[x] Dataset downloaded             25,000 images (12,500 cat / 12,500 dog)
+[x] Dataset downloaded             24,998 images (12,499 cat / 12,499 dog)
+                                   from the Kaggle dataset named in the brief
 [x] Preprocessing                  4,000 images @ 224x224, 80/10/10, 1 corrupt file filtered
 [x] Baseline training              8 epochs, test accuracy 74.75%, ROC-AUC 0.841
 [x] Transfer comparison run        ResNet-18, ~96% val accuracy
@@ -154,14 +155,24 @@ $ curl -F "file=@data/processed/test/dog/dog_10042.jpg" http://localhost:8000/pr
 
 ## Notes & Assumptions
 
-1. **Dataset source.** The Kaggle download requires account credentials, which
-   are not available in this environment. `src/data/download.py` tries the
-   Kaggle CLI first and falls back to Microsoft's public mirror of the *same*
-   25,000-image corpus, so the pipeline is reproducible without credentials.
+1. **Dataset source.** The images come from the Kaggle dataset linked in the
+   brief, `bhavikjikadara/dog-and-cat-classification-dataset` (24,998 images,
+   12,499 per class). `src/data/download.py` fetches it from Kaggle's public
+   dataset endpoint, which serves it **without credentials**, so the pipeline
+   reproduces on a clean machine; the Kaggle CLI is used when
+   `~/.kaggle/kaggle.json` is present.
+
+   An earlier revision sourced the images from Microsoft's release of the same
+   corpus. Both were compared before standardising on Kaggle: the Kaggle upload
+   is Microsoft's set minus exactly `Cat/666.jpg` and `Dog/11702.jpg` (the two
+   known-corrupt JPEGs, which `is_valid_image()` rejects either way), with
+   nothing added and sampled files byte-identical. Re-running preprocessing
+   from the Kaggle source produced a **byte-identical** 4,000-image training
+   set, so no model or metric in this submission changed. See report §2.1.
 
 2. **Subset size.** `params.yaml` caps training at 2,000 images per class
    (4,000 total) so the full pipeline runs end-to-end on a laptop in minutes.
-   Set `data.max_images_per_class: 0` to train on all 25,000 images.
+   Set `data.max_images_per_class: 0` to train on all 24,998 images.
 
 3. **Baseline accuracy.** 74.75% is an honest result for a ~422k-parameter CNN
    trained from scratch on 3,200 images for 8 epochs — well above the

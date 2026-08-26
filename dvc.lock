@@ -9,25 +9,25 @@ stages:
       size: 3147
     - path: src/data/download.py
       hash: md5
-      md5: 3450dc9efd74b1b47bceedaccfc466cd
-      size: 3980
+      md5: 48ffe93890d6e4b64727027e3375eef2
+      size: 5291
     params:
       params.yaml:
         data.raw_dir: data/raw
     outs:
     - path: data/raw/PetImages
       hash: md5
-      md5: b2c461b1b0bcb7a0a2318d5be1f13758.dir
-      size: 866190740
-      nfiles: 25002
+      md5: 3a5cf86541f22c236620ce5b952ad684.dir
+      size: 848866410
+      nfiles: 24998
   preprocess:
     cmd: python -m src.data.preprocess --clean
     deps:
     - path: data/raw/PetImages
       hash: md5
-      md5: b2c461b1b0bcb7a0a2318d5be1f13758.dir
-      size: 866190740
-      nfiles: 25002
+      md5: 3a5cf86541f22c236620ce5b952ad684.dir
+      size: 848866410
+      nfiles: 24998
     - path: src/config.py
       hash: md5
       md5: 1d091989c6b598812a90264a53e8a0e7

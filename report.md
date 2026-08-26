@@ -39,16 +39,30 @@ This project implements an end-to-end MLOps pipeline for binary image classifica
 
 ## 2. Dataset
 
-**Source:** Cats and Dogs binary classification dataset (Kaggle / Microsoft Research mirror)  
-**URL:** https://www.kaggle.com/datasets/shaunthesheep/microsoft-catsvsdogs-dataset
+**Source:** Cats and Dogs binary classification dataset (Kaggle)  
+**URL:** https://www.kaggle.com/datasets/bhavikjikadara/dog-and-cat-classification-dataset
 
-**Size:** 25,000 images — 12,500 cat, 12,500 dog (perfectly balanced)
+**Size:** 24,998 images — 12,499 cat, 12,499 dog (perfectly balanced)
 
-The Kaggle download requires account credentials. `src/data/download.py` attempts the Kaggle CLI first and falls back to Microsoft's public mirror of the *same* 25,000-image corpus, so the pipeline reproduces without credentials.
+This is the dataset linked from the assignment brief. `src/data/download.py` fetches it from Kaggle's public dataset endpoint, which serves this dataset **without requiring credentials**, so `dvc repro` reproduces the pipeline on a clean machine. The Kaggle CLI is used instead when `~/.kaggle/kaggle.json` is configured.
 
-### 2.1 Working Subset
+### 2.1 Source Verification
 
-`params.yaml` caps training at 2,000 images per class so the full pipeline runs end-to-end on a laptop in minutes. Setting `data.max_images_per_class: 0` uses all 25,000 images.
+An earlier iteration of this project sourced the images from Microsoft's release of the Cats vs Dogs corpus (`kagglecatsanddogs_5340.zip`) rather than from Kaggle. The two were compared directly before standardising on the Kaggle dataset:
+
+| Check | Result |
+|---|---|
+| Archive layout | Identical — `PetImages/Cat`, `PetImages/Dog` |
+| Files in Microsoft, absent from Kaggle | Exactly 2: `Cat/666.jpg`, `Dog/11702.jpg` |
+| Files in Kaggle, absent from Microsoft | 0 |
+| Sampled images byte-compared (SHA-256) | 6/6 identical |
+| Processed training data (4,000 images) | **Byte-identical between both sources** |
+
+The two files Kaggle omits are the corpus's well-known corrupt JPEGs, which `is_valid_image()` rejects regardless of source. Because preprocessing selects the first *valid* images per class, both sources yield the same 4,000 processed images — verified by hashing the entire processed tree from each. **The trained model and every metric in this report are therefore unaffected by the source swap.**
+
+### 2.2 Working Subset
+
+`params.yaml` caps training at 2,000 images per class so the full pipeline runs end-to-end on a laptop in minutes. Setting `data.max_images_per_class: 0` uses all 24,998 images.
 
 | Split | Cat | Dog | Total |
 |---|---|---|---|
@@ -65,7 +79,7 @@ Notebook: `notebooks/01_eda.ipynb` (executed, with outputs saved)
 
 ### 3.1 Class Balance
 
-The corpus is exactly balanced at 12,500 images per class. Accuracy is therefore a fair headline metric and no class weighting is required.
+The corpus is exactly balanced at 12,499 images per class. Accuracy is therefore a fair headline metric and no class weighting is required.
 
 ### 3.2 Image Dimensions
 
@@ -81,7 +95,7 @@ Images vary widely in both size and aspect ratio. This is the direct justificati
 
 ### 3.3 Corrupt Files
 
-The corpus ships a small number of zero-byte and truncated JPEGs that crash training data loaders. `is_valid_image()` filters them before the split; one corrupt Dog image was rejected during preprocessing.
+The Cats vs Dogs corpus is known to contain zero-byte and truncated JPEGs that crash training data loaders. The Kaggle upload has already removed the two worst offenders (`Cat/666.jpg`, `Dog/11702.jpg`), and `is_valid_image()` still screens every file before the split, so the pipeline is safe against either source.
 
 ### 3.4 Pixel Intensity
 
@@ -541,7 +555,7 @@ curl -F "file=@data/processed/test/cat/cat_10017.jpg" \
 
 ### Limitations
 
-- Training used 4,000 of the available 25,000 images to keep the pipeline laptop-runnable; `data.max_images_per_class: 0` lifts this.
+- Training used 4,000 of the available 24,998 images to keep the pipeline laptop-runnable; `data.max_images_per_class: 0` lifts this.
 - No DVC remote is configured, so CI falls back to a placeholder checkpoint when building images. The pod deployed by CD therefore carries untrained weights — CD verifies the deployment path, not model quality.
 - The Kubernetes rollout is verified in the CD pipeline on k3d; the equivalent local minikube run was not completed on the development machine (nested virtualisation and disk constraints).
 

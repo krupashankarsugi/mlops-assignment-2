@@ -1,13 +1,21 @@
 """Stage 1 of the DVC pipeline: fetch the Cats vs Dogs dataset.
 
+Fetches the Kaggle dataset named in the assignment brief:
+``bhavikjikadara/dog-and-cat-classification-dataset`` -- 24,998 JPEGs, 12,499
+per class, laid out as ``PetImages/Cat`` and ``PetImages/Dog``.
+
 Resolution order:
   1. An already-extracted ``data/raw/PetImages`` directory (nothing to do).
   2. An already-downloaded archive in ``data/raw`` (extract only).
-  3. The Kaggle CLI, when credentials are configured.
-  4. The Microsoft research mirror of the same corpus (no credentials needed).
+  3. The Kaggle CLI, when ``~/.kaggle/kaggle.json`` credentials are configured.
+  4. Kaggle's public dataset endpoint, which serves this dataset without
+     credentials.
+  5. Microsoft's release of the same corpus, as a last-resort fallback.
 
-The Kaggle "Cats and Dogs" dataset and the Microsoft "Dogs vs. Cats" download
-are the same 25k-image corpus, so either source yields an identical pipeline.
+Step 5 exists only for resilience. Microsoft's archive is the same corpus plus
+``Cat/666.jpg`` and ``Dog/11702.jpg``, two corrupt files the Kaggle upload
+removed; ``preprocess.is_valid_image`` rejects them either way, so both sources
+yield byte-identical processed data.
 """
 from __future__ import annotations
 
@@ -24,12 +32,16 @@ from src.config import load_config
 
 LOGGER = logging.getLogger("download")
 
+# The dataset named in the assignment brief.
+KAGGLE_DATASET = "bhavikjikadara/dog-and-cat-classification-dataset"
+KAGGLE_URL = f"https://www.kaggle.com/api/v1/datasets/download/{KAGGLE_DATASET}"
+
+# Same corpus, used only if Kaggle is unreachable. See the module docstring.
 MIRROR_URL = (
     "https://download.microsoft.com/download/3/E/1/"
     "3E1C3F21-ECDB-4869-8368-6DEBA77B919F/kagglecatsanddogs_5340.zip"
 )
-ARCHIVE_NAME = "kagglecatsanddogs_5340.zip"
-KAGGLE_DATASET = "shaunthesheep/microsoft-catsvsdogs-dataset"
+ARCHIVE_NAME = "cats-vs-dogs.zip"
 CLASS_DIRS = ("Cat", "Dog")
 
 
@@ -53,13 +65,30 @@ def _download_via_kaggle(raw_dir: Path) -> bool:
     return result.returncode == 0
 
 
-def _download_via_mirror(archive: Path) -> None:
-    LOGGER.info("downloading dataset from mirror -> %s", archive)
+def _stream_to(url: str, archive: Path) -> None:
     archive.parent.mkdir(parents=True, exist_ok=True)
     tmp = archive.with_suffix(".part")
-    with urllib.request.urlopen(MIRROR_URL) as response, tmp.open("wb") as out:
+    # Kaggle redirects to a signed storage URL; urlopen follows it.
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request) as response, tmp.open("wb") as out:
         shutil.copyfileobj(response, out)
     tmp.rename(archive)
+
+
+def _download_via_kaggle_public(archive: Path) -> bool:
+    """Kaggle serves this dataset without credentials; prefer it over the mirror."""
+    LOGGER.info("downloading from Kaggle: %s", KAGGLE_DATASET)
+    try:
+        _stream_to(KAGGLE_URL, archive)
+        return True
+    except OSError as exc:
+        LOGGER.warning("Kaggle download failed (%s); falling back to mirror", exc)
+        return False
+
+
+def _download_via_mirror(archive: Path) -> None:
+    LOGGER.info("downloading dataset from mirror -> %s", archive)
+    _stream_to(MIRROR_URL, archive)
 
 
 def _extract(archive: Path, raw_dir: Path) -> None:
@@ -93,7 +122,7 @@ def main(argv: list[str] | None = None) -> int:
 
     archive = raw_dir / ARCHIVE_NAME
     if not archive.exists() or args.force:
-        if not _download_via_kaggle(raw_dir):
+        if not _download_via_kaggle(raw_dir) and not _download_via_kaggle_public(archive):
             _download_via_mirror(archive)
 
     # The Kaggle CLI may name the archive differently; take whatever zip landed.
