@@ -1,2 +1,2 @@
 [core]
-    no_scm = True
+    autostage = true

@@ -5,10 +5,11 @@
 *.mov
 *.mp4
 
-# Model artifacts (tracked via DVC + published as CI artifacts)
-models/*.pt
+# Model artifacts. The served checkpoint is committed so a fresh clone can run
+# the service without retraining; other checkpoints stay out of Git.
 models/*.pth
 models/*.onnx
+!models/model.pt
 
 # Experiment tracking
 mlruns/

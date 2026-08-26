@@ -567,6 +567,13 @@ curl -F "file=@data/processed/test/cat/cat_10017.jpg" \
 
 **Container image:** `ghcr.io/krupashankarsugi/mlops-assignment-2:latest`
 
+The trained checkpoint (`models/model.pt`, 43 MB) is committed to the repository, so a fresh clone can serve predictions without retraining:
+
+```bash
+git clone https://github.com/krupashankarsugi/mlops-assignment-2.git
+cd mlops-assignment-2 && make setup && make serve
+```
+
 **CI/CD:** https://github.com/krupashankarsugi/mlops-assignment-2/actions
 
 ---
