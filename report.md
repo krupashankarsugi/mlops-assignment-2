@@ -1,7 +1,8 @@
 # MLOps Assignment 02 — Cats vs Dogs Image Classification Pipeline
 **Course:** Machine Learning Operations (AIMLCZG523)  
 **Institution:** BITS Pilani  
-**GitHub Repository:** https://github.com/krupashankarsugi/mlops-assignment-2
+**GitHub Repository:** https://github.com/krupashankarsugi/mlops-assignment-2  
+**Demo Video (< 5 min):** https://drive.google.com/file/d/1tdaeuOKgOFs5fhL2cXUq0cGHA5jl5Azu/view?usp=share_link
 
 ---
 
@@ -594,5 +595,13 @@ cd mlops-assignment-2 && make setup && make serve
 ```
 
 **CI/CD:** https://github.com/krupashankarsugi/mlops-assignment-2/actions
+
+### Demo Video
+
+A screen recording (4 min 49 s) demonstrating the complete MLOps workflow from a
+code change through CI, image publication and automated deployment to a
+prediction served by the deployed model:
+
+https://drive.google.com/file/d/1tdaeuOKgOFs5fhL2cXUq0cGHA5jl5Azu/view?usp=share_link
 
 ---

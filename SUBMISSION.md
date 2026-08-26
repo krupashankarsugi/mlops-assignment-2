@@ -2,7 +2,8 @@
 
 **Course:** MLOps (S1-25_AIMLCZG523) · **Total marks:** 50  
 **Use case:** Binary image classification (Cats vs Dogs) for a pet adoption platform  
-**GitHub Repository:** https://github.com/krupashankarsugi/mlops-assignment-2
+**GitHub Repository:** https://github.com/krupashankarsugi/mlops-assignment-2  
+**Demo Video (< 5 min):** https://drive.google.com/file/d/1tdaeuOKgOFs5fhL2cXUq0cGHA5jl5Azu/view?usp=share_link
 
 ---
 
@@ -217,7 +218,7 @@ $ curl -F "file=@data/processed/test/dog/dog_10042.jpg" http://localhost:8000/pr
 | 1 | Zip: source, DVC/CI-CD/Docker/K8s configs, model artifacts | `make package` → `MLOps_Assignment02_KrupaShankar.zip` |
 | — | Written report (`report.md` + `report.pdf`) | in the repo root |
 | — | Source repository | https://github.com/krupashankarsugi/mlops-assignment-2 |
-| 2 | Screen recording (< 5 min) of the full workflow | *to be recorded — see the demo script below* |
+| 2 | Screen recording (< 5 min) of the full workflow | [Google Drive](https://drive.google.com/file/d/1tdaeuOKgOFs5fhL2cXUq0cGHA5jl5Azu/view?usp=share_link) — 4 min 49 s |
 
 ### Suggested demo script (< 5 minutes)
 
